@@ -236,7 +236,7 @@ func (ua *UserAgent) SendRegister(profile *account.Profile, target sip.SipUri, e
 	ua.handleRegisterState(profile, resp, err)
 }
 
-func (ua *UserAgent) Invite(profile *account.Profile, target sip.SipUri, body *string) {
+func (ua *UserAgent) Invite(profile *account.Profile, target sip.SipUri, body *string, customHeaders *[]sip.Header) {
 	logger := ua.log
 
 	from := buildFrom(target, profile.User, profile.DisplayName)
@@ -253,6 +253,12 @@ func (ua *UserAgent) Invite(profile *account.Profile, target sip.SipUri, body *s
 		(*request).SetBody(*body, true)
 		contentType := sip.ContentType("application/sdp")
 		(*request).AppendHeader(&contentType)
+	}
+
+	if customHeaders != nil {
+		for _, customHeader := range *customHeaders {
+			(*request).AppendHeader(customHeader)
+		}
 	}
 
 	var authorizer *auth.ClientAuthorizer = nil
